@@ -1,0 +1,231 @@
+openapi: 3.0.0
+info:
+  title: CIAN Parser API
+  description: API для получения данных об объявлениях аренды квартир с сайта ЦИАН
+  version: 0.1.0
+  contact:
+    email: your-email@example.com
+servers:
+  - url: http://localhost:5000
+    description: Локальный сервер разработки
+paths:
+  /listings:
+    get:
+      summary: Получить список объявлений
+      description: Возвращает список объявлений об аренде квартир с ЦИАН
+      parameters:
+        - name: refresh
+          in: query
+          description: Принудительно обновить кэш данных
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+        '500':
+          description: Ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /settings:
+    get:
+      summary: Получить текущие настройки поиска
+      description: Возвращает текущие настройки поиска объявлений
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Settings'
+    put:
+      summary: Обновить настройки поиска
+      description: Обновляет настройки поиска объявлений
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettingsUpdate'
+      responses:
+        '200':
+          description: Настройки успешно обновлены
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Settings updated
+                  settings:
+                    $ref: '#/components/schemas/Settings'
+        '400':
+          description: Неверный формат запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /health:
+    get:
+      summary: Проверка работоспособности
+      description: Проверяет, что сервис работает корректно
+      responses:
+        '200':
+          description: Сервис работает нормально
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+components:
+  schemas:
+    Listing:
+      type: object
+      properties:
+        author:
+          type: string
+          description: Имя автора объявления
+          example: Иван Петров
+        author_type:
+          type: string
+          description: Тип автора (владелец, агент и т.д.)
+          example: realtor
+        url:
+          type: string
+          description: URL объявления на сайте ЦИАН
+          example: https://www.cian.ru/rent/flat/123456789/
+        location:
+          type: string
+          description: Местоположение квартиры
+          example: Москва
+        deal_type:
+          type: string
+          description: Тип сделки
+          example: rent
+        accommodation_type:
+          type: string
+          description: Тип жилья
+          example: flat
+        floor:
+          type: integer
+          description: Этаж
+          example: 5
+        floors_count:
+          type: integer
+          description: Всего этажей в доме
+          example: 12
+        rooms_count:
+          type: integer
+          description: Количество комнат
+          example: 2
+        total_meters:
+          type: number
+          format: float
+          description: Общая площадь в квадратных метрах
+          example: 65.5
+        price_per_month:
+          type: integer
+          description: Цена аренды в месяц
+          example: 45000
+        commissions:
+          type: integer
+          description: Комиссия
+          example: 0
+        district:
+          type: string
+          description: Район
+          example: Хамовники
+        street:
+          type: string
+          description: Улица
+          example: Фрунзенская набережная
+        house_number:
+          type: string
+          description: Номер дома
+          example: 50
+        underground:
+          type: string
+          description: Ближайшее метро
+          example: Фрунзенская
+    Settings:
+      type: object
+      properties:
+        min_price:
+          type: integer
+          description: Минимальная цена аренды
+          example: 30000
+        max_price:
+          type: integer
+          description: Максимальная цена аренды
+          example: 80000
+        min_house_year:
+          type: integer
+          description: Минимальный год постройки дома
+          example: 1990
+        max_house_year:
+          type: integer
+          description: Максимальный год постройки дома
+          example: 2023
+        min_floor:
+          type: integer
+          description: Минимальный этаж
+          example: 3
+        sort_by:
+          type: string
+          description: Параметр сортировки результатов
+          example: total_meters_from_max_to_min
+      required:
+        - min_price
+        - max_price
+        - min_house_year
+        - max_house_year
+        - min_floor
+        - sort_by
+    SettingsUpdate:
+      type: object
+      description: Объект для обновления настроек (все поля опциональны)
+      properties:
+        min_price:
+          type: integer
+          description: Минимальная цена аренды
+          example: 40000
+        max_price:
+          type: integer
+          description: Максимальная цена аренды
+          example: 90000
+        min_house_year:
+          type: integer
+          description: Минимальный год постройки дома
+          example: 2000
+        max_house_year:
+          type: integer
+          description: Максимальный год постройки дома
+          example: 2023
+        min_floor:
+          type: integer
+          description: Минимальный этаж
+          example: 5
+        sort_by:
+          type: string
+          description: Параметр сортировки результатов
+          example: price_from_min_to_max
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Сообщение об ошибке
+          example: Internal server error

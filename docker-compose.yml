@@ -1,0 +1,20 @@
+version: '3'
+services:
+  cian-parser:
+    build: ./cian_parser_service
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    container_name: cian-parser
+
+  # telegram-bot:
+  #   build: ./telegram_bot_service
+  #   environment:
+  #     - CIAN_API_URL=http://cian-parser:5000
+  #     - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
+  #   depends_on:
+  #     - cian-parser
+  #   restart: unless-stopped
+  #   container_name: telegram-bot

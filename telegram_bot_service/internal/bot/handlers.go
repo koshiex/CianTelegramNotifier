@@ -139,7 +139,7 @@ func (b *Bot) handleTextMessage(message *tgbotapi.Message) {
 func (b *Bot) handleCallbackQuery(query *tgbotapi.CallbackQuery) {
 	chatID := query.Message.Chat.ID
 	userID := query.From.ID
-	data := query.CallbackData
+	data := query.Data
 
 	// Acknowledge the callback query
 	callback := tgbotapi.NewCallback(query.ID, "")

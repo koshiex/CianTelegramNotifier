@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   cian-parser:
     build: ./cian_parser_service
@@ -8,13 +8,38 @@ services:
       - ./logs:/app/logs
     restart: unless-stopped
     container_name: cian-parser
+    networks:
+      - cian-network
 
-  # telegram-bot:
-  #   build: ./telegram_bot_service
-  #   environment:
-  #     - CIAN_API_URL=http://cian-parser:5000
-  #     - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}
-  #   depends_on:
-  #     - cian-parser
-  #   restart: unless-stopped
-  #   container_name: telegram-bot
+  telegram-bot:
+    build: ./telegram_bot_service
+    env_file:
+      - docker.env
+    environment:
+      - CIAN_API_URL=http://cian-parser:5000
+      - DATABASE_PATH=/app/data/bot.db
+    depends_on:
+      - cian-parser
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    container_name: telegram-bot
+    networks:
+      - cian-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  cian-network:
+    driver: bridge
+
+volumes:
+  data:
+  logs:

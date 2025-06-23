@@ -10,9 +10,9 @@ echo "🚀 Запуск ЦИАН Telegram Notifier..."
 if [ ! -f "docker.env" ]; then
     echo "❌ Файл docker.env не найден!"
     echo "📝 Создаем файл docker.env из шаблона..."
-    cp docker.env docker.env.example || {
+    cp docker.env.sample docker.env || {
         echo "❌ Не удалось создать файл docker.env"
-        echo "💡 Создайте файл docker.env вручную на основе docker.env.example"
+        echo "💡 Создайте файл docker.env вручную на основе docker.env.sample"
         exit 1
     }
     echo "✅ Файл docker.env создан!"
